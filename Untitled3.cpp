@@ -6,14 +6,14 @@ void viewSports(vector<Sport>& sports) {
     cout << endl;
 }
 
-void viewGroupedStudents(vector<Student>& students, vector<Club>& clubs, vector<Sport>& sports) {
+void viewGroupedStudents(vector<Student>& students, vector<Club>& clubs, vector<Sport>& sports) {// "&" denotes a reference 
     int option;
     cout << "Please select an activity:" << endl;
     cout << "1. Club/Society" << endl;
     cout << "2. Sport" << endl;
     cin >> option;
     if (option == 1) {
-        string club;
+        string club;// chain of characters
         cout << "Enter the name of the club/society:" << endl;
         cin.ignore();
         getline(cin, club);
@@ -27,8 +27,8 @@ void viewGroupedStudents(vector<Student>& students, vector<Club>& clubs, vector<
     else if (option == 2) {
         string sport;
         cout << "Enter the name of the sport:" << endl;
-        cin.ignore();
-        getline(cin, sport);
+        cin.ignore();// to clear any remaining newline character
+        getline(cin, sport);// This function reads a line of input from the standard input stream and stores it in the variable sport.
         cout << "List of students in " << sport << ":" << endl;
         for (Student s : students) {
             if (s.sport == sport) {
@@ -40,7 +40,7 @@ void viewGroupedStudents(vector<Student>& students, vector<Club>& clubs, vector<
 }
 
 void saveData(vector<Student>& students) {
-    ofstream outputFile;
+    ofstream outputFile;// to write out put to the file
     outputFile.open("bbityear1.csv");
     outputFile << "First Name,Surname,Gender,Age,BBIT Group,activity 1,activity 2,activity 3\n";
     for (Student s : students) {
@@ -60,7 +60,7 @@ void saveData(vector<Student>& students) {
             }
         }
     }
-    outputFile.close();
+    outputFile.close();// to close the csv file
     cout << "Data saved successfully to bbityear1.csv" << endl;
     cout << endl;
 }
