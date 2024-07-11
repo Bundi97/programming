@@ -1,142 +1,89 @@
-
-
-void viewClubsSocieties(vector<Club>& clubs) {
-    cout << "List of available clubs/societies:" << endl;
-    for (Club c : clubs) {
-        cout << c.name << " - " << c.description << " (" << c.currentCapacity << "/" << c.maxCapacity << ")" << endl;
-    }
-    cout << endl;
-}
-
-void viewSports(vector<Sport>& sports) {
-    cout << "List of available sports:" << endl;
-    for (Sport s : sports) {
-        cout << s.name << " - " << s.description << " (" << s.currentCapacity << "/" << s.maxCapacity << ")" << endl;
-    }
-    cout << endl;
-}
-
-void viewGroupedStudents(vector<Student>& students, vector<Club>& clubs, vector<Sport>& sports) {
-    int option;
-    cout << "Please select an activity:" << endl;
-    cout << "1. Club/Society" << endl;
-    cout << "2. Sport" << endl;
-    cin >> option;
-    if (option == 1) {
-        string club;
-        cout << "Enter the name of the club/society:" << endl;
-        cin.ignore();
-        getline(cin, club);
-        cout << "List of students in " << club << ":" << endl;
-        for (Student s : students) {
-            if (find(s.clubs.begin(), s.clubs.end(), club) != s.clubs.end()) {
-                cout << s.firstName << " " << s.surname << " - BBIT Group " << s.bbitGroup << endl;
-            }
+    // Choose a sport
+    if (sports.empty()) {
+        cout << "There are no sports available to join." << endl;
+    }// if the sport  vector is empty
+    else {
+        cout << "Select a sport to join:" << endl;
+        for (int i = 0; i < sports.size(); i++) {//give the selected sport and show the current caacity
+            cout << i + 1 << ". " << sports[i].name << " (" << sports[i].currentCapacity << "/" << sports[i].maxCapacity << ")" << endl;
         }
-    }
-    else if (option == 2) {
-        string sport;
-        cout << "Enter the name of the sport:" << endl;
-        cin.ignore();
-        getline(cin, sport);
-        cout << "List of students in " << sport << ":" << endl;
-        for (Student s : students) {
-            if (s.sport == sport) {
-                cout << s.firstName << " " << s.surname << " - BBIT Group " << s.bbitGroup << endl;
-            }
+        int sportSelection;
+        cin >> sportSelection;
+        while (sportSelection < 1 || sportSelection > sports.size()) {//if sport selection is less than 0ne or more than the maximum for sport selection
+            cout << "Invalid selection. Please enter a valid selection:" << endl;
+            cin >> sportSelection;
         }
-    }
-    cout << endl;
-}
-
-void saveData(vector<Student>& students) {
-    ofstream outputFile;
-    outputFile.open("bbityear1.csv");
-    outputFile << "First Name,Surname,Gender,Age,BBIT Group,activity 1,activity 2,activity 3\n";
-    for (Student s : students) {
-        outputFile << s.firstName << "," << s.surname << "," << s.gender << "," << s.age << "," << s.bbitGroup << ","
-            << s.sport << ",";
-        if (s.clubs.empty()) {
-            outputFile << ",,," << endl;
+        if (sports[sportSelection - 1].currentCapacity >= sports[sportSelection - 1].maxCapacity) {//if current capacity is more than the current capacity
+            cout << "Sorry, " << sports[sportSelection - 1].name << " is already full." << endl;
         }
         else {
-            for (int i = 0; i < s.clubs.size(); i++) {
-                if (i == s.clubs.size() - 1) {
-                    outputFile << s.clubs[i] << "," << "," << endl;
+            // Check gender limit for sport
+            if (s.gender == "M" && ((double)sports[sportSelection - 1].maleCount / (double)sports[sportSelection - 1].maxCapacity) >= 0.75) {
+                cout << "Sorry, there is not enough space for males in " << sports[sportSelection - 1].name << "." << endl;
+            }//if the ration of malecount is more than 0.75
+            else if (s.gender == "F" && ((double)sports[sportSelection - 1].femaleCount / (double)sports[sportSelection - 1].maxCapacity) >= 0.75) {
+                cout << "Sorry, there is not enough space for females in " << sports[sportSelection - 1].name << "." << endl;
+            }// if the ratoi for female count is more tham 0.75
+            else {
+                sports[sportSelection - 1].currentCapacity++;//the current capacity of the selected sport increase
+                s.sport = sports[sportSelection - 1].name;
+                if (s.gender == "M") {//malecount
+                    sports[sportSelection - 1].maleCount++;
+                }
+                else if (s.gender == "F") {//gender count
+                    sports[sportSelection - 1].femaleCount++;
+                }
+            }
+        }
+    }
+
+    // Choose clubs
+    if (clubs.empty()) {// if the vector club is empty
+        cout << "There are no clubs/societies available to join." << endl;
+    }
+    else {
+        cout << "Select up to 2 clubs/societies to join (Enter 0 to stop):" << endl;
+        for (int i = 0; i < clubs.size(); i++) {// for the clubselection is less than the max for club selection
+            cout << i + 1 << ". " << clubs[i].name << " (" << clubs[i].currentCapacity << "/" << clubs[i].maxCapacity << ") - " << clubs[i].description << endl;
+        }
+        int clubSelection;
+        int count = 0;// to count the club chosen by a student
+        cin >> clubSelection;
+        while (clubSelection != 0 && count < 2) {//as long as a club want to be selected and that the club selected are less than two
+            if (clubSelection < 1 || clubSelection > clubs.size()) {//if the clubselection is less than 1 or more than the max for clubselection
+                cout << "Invalid selection. Please enter a valid selection:" << endl;
+            }
+            else if (clubs[clubSelection - 1].currentCapacity >= clubs[clubSelection - 1].maxCapacity) {
+                cout << "Sorry, " << clubs[clubSelection - 1].name << " is already full." << endl;//verify is the club is full
+            }
+            else if (find(s.clubs.begin(), s.clubs.end(), clubs[clubSelection - 1].name) != s.clubs.end()) {// to check if you have already joined a club
+                cout << "You have already joined " << clubs[clubSelection - 1].name << ". Please select a different club/society." << endl;
+            }
+            else {
+                // Check gender limit for club
+                if (s.gender == "M" && ((double)clubs[clubSelection - 1].maleCount / (double)clubs[clubSelection - 1].maxCapacity) >= 0.5) {
+                    cout << "Sorry, there is not enough space for males in " << clubs[clubSelection - 1].name << "." << endl;// if the male ratio is more than 0.5
+                }
+                else if (s.gender == "F" && ((double)clubs[clubSelection - 1].femaleCount / (double)clubs[clubSelection - 1].maxCapacity) >= 0.5) {
+                    cout << "Sorry, there is not enough space for females in " << clubs[clubSelection - 1].name << "." << endl;
                 }
                 else {
-                    outputFile << s.clubs[i] << ",";
+                    clubs[clubSelection - 1].currentCapacity++;//to increase the capacity of the club selected
+                    s.clubs.push_back(clubs[clubSelection - 1].name);
+                    count++;// to add the club selected in the student's club
+                    if (s.gender == "M") {
+                        clubs[clubSelection - 1].maleCount++;
+                    }
+                    else if (s.gender == "F") {
+                        clubs[clubSelection - 1].femaleCount++;
+                    }
                 }
             }
+            cin >> clubSelection;
         }
     }
-    outputFile.close();
-    cout << "Data saved successfully to bbityear1.csv" << endl;
+
+    students.push_back(s);// to add succcessfully a student
+    cout << "Student added successfully." << endl;
     cout << endl;
-}
-
-int main() {
-    // Initialize data
-    vector<Club> clubs = { {"Journalism Club", "Learn about and practice journalism.", 60},
-                           {"Red Cross Society", "Join the Red Cross and help those in need.", 60},
-                           {"AISEC", "Join the AISEC international exchange program.", 60},
-                           {"Business Club", "Get practical business experience.", 60},
-                           {"Computer Science Club", "Learn and practice computer science concepts and projects.", 60} };
-    vector<Sport> sports = { {"Rugby", "Play competitive rugby matches.", 20},
-                             {"Athletics", "Train and compete in athletic events.", 20},
-                             {"Swimming", "Train and compete in swimming events.", 20},
-                             {"Soccer", "Play competitive soccer matches.",20} };
-    vector<Student> students;
-
-    int option;
-    while (true) {
-        cout << "Welcome to the BBIT Year 1 Co-Curricular Activities Program" << endl;
-        cout << "Please select an option from the menu:" << endl;
-        cout << "1. Add Student" << endl;
-        cout << "2. View Students" << endl;
-        cout << "3. View Clubs/Societies" << endl;
-        cout << "4. View Sports" << endl;
-        cout << "5. View Grouped Students" << endl;
-        cout << "6. Save all Files" << endl;
-        cout << "7. Exit" << endl;
-        cin >> option;
-
-        switch (option) {
-        case 1:
-            addStudent(students, clubs, sports);
-            break;
-        case 2:
-            int viewOption;
-            cout << "Please select an option:" << endl;
-            cout << "1. View All Students" << endl;
-            cout << "2. View Students by BBIT Group" << endl;
-            cin >> viewOption;
-            if (viewOption == 1) {
-                viewAllStudents(students);
-            }
-            else if (viewOption == 2) {
-                viewStudentsByGroup(students);
-            }
-            break;
-        case 3:
-            viewClubsSocieties(clubs);
-            break;
-        case 4:
-            viewSports(sports);
-            break;
-        case 5:
-            viewGroupedStudents(students, clubs, sports);
-            break;
-        case 6:
-            saveData(students);
-            break;
-        case 7:
-            cout << "Thanks !!" << endl;
-            return 0;
-        default:
-            cout << "Invalid option. Please select a valid option from the menu." << endl;
-            break;
-        }
-    }
-    return 0;
 }
